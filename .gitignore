@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+/data/
+/q7_out/
+/out/
+.DS_Store

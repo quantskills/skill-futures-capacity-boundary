@@ -1,0 +1,11 @@
+capital,zone,zone_size_only,failed_central,failed_pessimistic,net_ret_central
+5000000.0,失效,安全,cost,cost,-0.00027126383083280527
+10000000.0,失效,安全,cost,cost,-0.004453709168944505
+20000000.0,失效,安全,cost,cost,-0.008799740003241024
+50000000.0,失效,安全,cost,cost,-0.005688699695884215
+100000000.0,失效,条件,cost,"cost,roll",-0.008463604081565563
+200000000.0,失效,条件,cost,"participation,cost,roll,runway,oi",-0.012908714856037786
+500000000.0,失效,高风险,"participation,cost,roll,oi","participation,cost,roll,runway,oi",-0.021595030766172075
+1000000000.0,失效,失效,"participation,cost,roll,oi","participation,cost,roll,runway,oi",-0.03140281388592298
+2000000000.0,失效,失效,"participation,cost,roll,oi","participation,cost,roll,runway,oi",-0.04528465331490341
+5000000000.0,失效,失效,"participation,cost,roll,runway,oi","participation,cost,roll,runway,oi",-0.07281334018957666

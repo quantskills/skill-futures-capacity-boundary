@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "versionId": "skill-futures-capacity-boundary@85336537b625b937b66e9e9cc727d3f87bc9bcf1",
+  "assetId": "skill-futures-capacity-boundary",
+  "kind": "skill",
+  "repository": "local-authoring:skill-futures-capacity-boundary",
+  "commit": "85336537b625b937b66e9e9cc727d3f87bc9bcf1",
+  "declaration": "SKILL.md",
+  "treeDigest": "sha256:d9da6aeb787c69011c45b9517d3b658a5fcc73db1bf278d7ddcf4c6b7e1ae825",
+  "fileCount": 31,
+  "totalBytes": 573066,
+  "installedAt": 1794854498655,
+  "exposure": "skill-registry",
+  "origin": "local-authoring"
+}

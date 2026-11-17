@@ -1,0 +1,234 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>期货容量边界</title>
+<style>:root{--bg:#0f1218;--fg:#e8eaed;--mut:#9aa0a6;--card:#171b23;--line:#2a2f3a}body{background:var(--bg);color:var(--fg);font:15px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;margin:0;padding:24px 16px}
+.w{max-width:1100px;margin:auto}h1{font-size:22px}h2{font-size:17px;border-left:3px solid #4f8cff;padding-left:8px;margin-top:28px}
+.k{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.c{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px}
+.c b{font-size:20px;display:block}.c span{color:var(--mut);font-size:13px}.zs{display:flex;flex-wrap:wrap;gap:6px}.z{border-radius:8px;padding:6px 10px;min-width:92px}.z b{display:block}.z span{font-size:13px}.z small{display:block;font-size:11px;opacity:.85}
+canvas{background:var(--card);border-radius:10px;padding:8px;max-height:320px}.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+pre{white-space:pre-wrap;background:var(--card);padding:12px;border-radius:10px;border:1px solid var(--line);font-size:13px;overflow:auto}.note{color:var(--mut);font-size:13px}</style></head>
+<body><div class="w"><h1>期货策略放大资金后在哪里失效</h1>
+<p class="note">被测策略 S0 为公开信号（商品期货 63 日截面动量 + 25% 不交易带，周频），只作为被测对象，不是推荐策略。数据 PandaData，输入指纹 3a216d03b7f24ea8。研究与教育用途，不构成投资建议。</p>
+<div class="c" style="margin:12px 0"><pre style="background:none;border:0;padding:0;margin:0">被测策略 S0（公开信号：商品期货 63 日截面动量 + 25% 不交易带）在真实合约账本上不扣成本年化 +1.7%（夏普 0.20）。
+规模上（只看参与率、换月旧腿、保证金跑道、持仓占比）：中性假设最大可行资金档 2.00 亿，乐观 5.00 亿，悲观 5000 万；开发期与保留期结论一致。
+最先坏的是换月旧腿：11 个品种里有 11 个是移仓先于日常调仓超限，最弱的 SA 在 2.00 亿 时旧腿窗口参与率就超过上限。
+中性假设下从 5.00 亿 开始，超限的约束是：日内窗口参与率、换月旧腿参与率、持仓占比（限仓代理）。
+经济上：即使在最小资金档，费用加半价差也吃掉毛收益的 88%（中性），任何规模都超过 50% 的阈值。成本里最大的一块是半价差；只要半价差不为零，费用再低也只能降到约 71%。
+对照：股票 ADV 框架（skill-strategy-capacity-tca 默认参数）只算平方根冲击，给出盈亏平衡资金约 1.06 亿，看不到固定成本和换月旧腿。
+真实冲击无法用公开数据校准，以上是假设下的容量区间，不是资金上限承诺。</pre></div>
+<div class="k"><div class="c"><b>2.00 亿</b><span>规模约束：中性假设最大可行资金档</span></div><div class="c"><b>5.00 亿</b><span>乐观假设</span></div>
+<div class="c"><b>5000 万</b><span>悲观假设</span></div><div class="c"><b>88%</b><span>固定成本占毛收益（最小资金档，中性）</span></div>
+<div class="c"><b>1.06 亿</b><span>对照：ADV 框架的盈亏平衡资金</span></div></div>
+<h2>规模分区（只看规模约束）</h2><div class="zs"><div class='z' style='background:#2e7d32'><b>500 万</b><span>安全</span><small></small></div><div class='z' style='background:#2e7d32'><b>1000 万</b><span>安全</span><small></small></div><div class='z' style='background:#2e7d32'><b>2000 万</b><span>安全</span><small></small></div><div class='z' style='background:#2e7d32'><b>5000 万</b><span>安全</span><small></small></div><div class='z' style='background:#f9a825'><b>1.00 亿</b><span>条件</span><small></small></div><div class='z' style='background:#f9a825'><b>2.00 亿</b><span>条件</span><small></small></div><div class='z' style='background:#ef6c00'><b>5.00 亿</b><span>高风险</span><small>participation,roll,oi</small></div><div class='z' style='background:#c62828'><b>10.00 亿</b><span>失效</span><small>participation,roll,oi</small></div><div class='z' style='background:#c62828'><b>20.00 亿</b><span>失效</span><small>participation,roll,oi</small></div><div class='z' style='background:#c62828'><b>50.00 亿</b><span>失效</span><small>participation,roll,runway,oi</small></div></div><p class="note">经济约束另算：见上方"固定成本占毛收益"。</p>
+<h2>图表</h2><div class="g2"><canvas id="c1"></canvas><canvas id="c2"></canvas><canvas id="c3"></canvas><canvas id="c4"></canvas></div>
+<h2>完整读数</h2><pre># 期货策略放大资金后在哪里失效：容量边界报告
+
+&gt; 生成时间 2026-11-17 02:19:55；数据 PandaData（输入指纹 `3a216d03b7f24ea8`）；被测策略 S0（公开信号，不是推荐策略）；研究与教育用途，不构成投资建议。
+
+## 结论（人话）
+
+被测策略 S0（公开信号：商品期货 63 日截面动量 + 25% 不交易带）在真实合约账本上不扣成本年化 +1.7%（夏普 0.20）。
+
+规模上（只看参与率、换月旧腿、保证金跑道、持仓占比）：中性假设最大可行资金档 2.00 亿，乐观 5.00 亿，悲观 5000 万；开发期与保留期结论一致。
+
+最先坏的是换月旧腿：11 个品种里有 11 个是移仓先于日常调仓超限，最弱的 SA 在 2.00 亿 时旧腿窗口参与率就超过上限。
+
+中性假设下从 5.00 亿 开始，超限的约束是：日内窗口参与率、换月旧腿参与率、持仓占比（限仓代理）。
+
+经济上：即使在最小资金档，费用加半价差也吃掉毛收益的 88%（中性），任何规模都超过 50% 的阈值。成本里最大的一块是半价差；只要半价差不为零，费用再低也只能降到约 71%。
+
+对照：股票 ADV 框架（skill-strategy-capacity-tca 默认参数）只算平方根冲击，给出盈亏平衡资金约 1.06 亿，看不到固定成本和换月旧腿。
+
+真实冲击无法用公开数据校准，以上是假设下的容量区间，不是资金上限承诺。
+
+
+## 分区（全样本 2020-01-02 至 2026-11-13）
+
+`zone_size_only` 只看规模约束（参与率、换月旧腿、保证金跑道、持仓占比、资金下限）；`zone` 再加上经济约束（成本不超过毛收益的 50%）。
+
+| capital | zone | zone_size_only | failed_central | failed_pessimistic | net_ret_central |
+|---|---|---|---|---|---|
+| 500 万 | 失效 | 安全 | cost | cost | -0.0002713 |
+| 1000 万 | 失效 | 安全 | cost | cost | -0.004454 |
+| 2000 万 | 失效 | 安全 | cost | cost | -0.0088 |
+| 5000 万 | 失效 | 安全 | cost | cost | -0.005689 |
+| 1.00 亿 | 失效 | 条件 | cost | cost,roll | -0.008464 |
+| 2.00 亿 | 失效 | 条件 | cost | participation,cost,roll,runway,oi | -0.01291 |
+| 5.00 亿 | 失效 | 高风险 | participation,cost,roll,oi | participation,cost,roll,runway,oi | -0.0216 |
+| 10.00 亿 | 失效 | 失效 | participation,cost,roll,oi | participation,cost,roll,runway,oi | -0.0314 |
+| 20.00 亿 | 失效 | 失效 | participation,cost,roll,oi | participation,cost,roll,runway,oi | -0.04528 |
+| 50.00 亿 | 失效 | 失效 | participation,cost,roll,runway,oi | participation,cost,roll,runway,oi | -0.07281 |
+
+
+## 规模约束下的最大可行资金档（全样本 / 开发期 / 保留期）
+
+| index | optimistic | central | pessimistic |
+|---|---|---|---|
+| full | 5.00 亿 | 2.00 亿 | 5000 万 |
+| dev | 5.00 亿 | 2.00 亿 | 5000 万 |
+| holdout | 5.00 亿 | 2.00 亿 | 5000 万 |
+
+
+## 经济可行性：固定成本占毛收益（最小资金档，几乎没有冲击）
+
+| fee_bp | half_spread_tick | fixed_cost_annual | fixed_cost_share |
+|---|---|---|---|
+| 0.5 | 0 | 1.52e+04 | 0.173 |
+| 0.5 | 0.5 | 6.2e+04 | 0.707 |
+| 0.5 | 1 | 1.09e+05 | 1.24 |
+| 1 | 0 | 3.03e+04 | 0.346 |
+| 1 | 0.5 | 7.71e+04 | 0.88 |
+| 1 | 1 | 1.24e+05 | 1.41 |
+| 2 | 0 | 6.06e+04 | 0.692 |
+| 2 | 0.5 | 1.07e+05 | 1.23 |
+| 2 | 1 | 1.54e+05 | 1.76 |
+
+
+开发期 2020–2023 与保留期 2024–2026 分别回放。保留期是在三套假设定死之后才计算的，两段差异代表结论的时变性。
+
+## 逐资金档 × 假设的约束读数
+
+| capital | assume | rho_p95 | roll_rho_p95 | cost_frac_capital | net_annual_ret | runway_fail_share | oi_share_max | floor_median_err | failed |
+|---|---|---|---|---|---|---|---|---|---|
+| 500 万 | optimistic | 0.0008 | 0.0012 | 0.0138 | 0.0037 | 0.0000 | 0.0008 | 0.0085 | cost |
+| 500 万 | central | 0.0011 | 0.0019 | 0.0178 | -0.0003 | 0.0000 | 0.0008 | 0.0085 | cost |
+| 500 万 | pessimistic | 0.0017 | 0.0030 | 0.0356 | -0.0181 | 0.0000 | 0.0008 | 0.0085 | cost |
+| 1000 万 | optimistic | 0.0015 | 0.0023 | 0.0142 | -0.0002 | 0.0000 | 0.0017 | 0.0044 | cost |
+| 1000 万 | central | 0.0021 | 0.0037 | 0.0185 | -0.0045 | 0.0000 | 0.0017 | 0.0044 | cost |
+| 1000 万 | pessimistic | 0.0031 | 0.0057 | 0.0370 | -0.0230 | 0.0000 | 0.0017 | 0.0044 | cost |
+| 2000 万 | optimistic | 0.0030 | 0.0047 | 0.0151 | -0.0039 | 0.0000 | 0.0033 | 0.0022 | cost |
+| 2000 万 | central | 0.0043 | 0.0076 | 0.0199 | -0.0088 | 0.0000 | 0.0033 | 0.0022 | cost |
+| 2000 万 | pessimistic | 0.0064 | 0.0116 | 0.0399 | -0.0287 | 0.0000 | 0.0033 | 0.0022 | cost |
+| 5000 万 | optimistic | 0.0076 | 0.0119 | 0.0169 | 0.0003 | 0.0000 | 0.0084 | 0.0009 | cost |
+| 5000 万 | central | 0.0110 | 0.0192 | 0.0229 | -0.0057 | 0.0000 | 0.0084 | 0.0009 | cost |
+| 5000 万 | pessimistic | 0.0161 | 0.0298 | 0.0458 | -0.0286 | 0.0000 | 0.0084 | 0.0009 | cost |
+| 1.00 亿 | optimistic | 0.0152 | 0.0239 | 0.0188 | -0.0012 | 0.0000 | 0.0168 | 0.0004 | cost |
+| 1.00 亿 | central | 0.0222 | 0.0383 | 0.0261 | -0.0085 | 0.0000 | 0.0168 | 0.0004 | cost |
+| 1.00 亿 | pessimistic | 0.0324 | 0.0599 | 0.0521 | -0.0345 | 0.0000 | 0.0168 | 0.0004 | cost,roll |
+| 2.00 亿 | optimistic | 0.0303 | 0.0478 | 0.0214 | -0.0039 | 0.0000 | 0.0335 | 0.0002 | cost |
+| 2.00 亿 | central | 0.0443 | 0.0766 | 0.0304 | -0.0129 | 0.0000 | 0.0335 | 0.0002 | cost |
+| 2.00 亿 | pessimistic | 0.0648 | 0.1197 | 0.0609 | -0.0433 | 0.0519 | 0.0335 | 0.0002 | participation,cost,roll,runway,oi |
+| 5.00 亿 | optimistic | 0.0757 | 0.1195 | 0.0266 | -0.0091 | 0.0000 | 0.0838 | 0.0001 | cost |
+| 5.00 亿 | central | 0.1108 | 0.1915 | 0.0392 | -0.0216 | 0.0000 | 0.0838 | 0.0001 | participation,cost,roll,oi |
+| 5.00 亿 | pessimistic | 0.1621 | 0.2993 | 0.0783 | -0.0607 | 0.3343 | 0.0838 | 0.0001 | participation,cost,roll,runway,oi |
+| 10.00 亿 | optimistic | 0.1515 | 0.2389 | 0.0325 | -0.0150 | 0.0000 | 0.1677 | 0.0000 | cost,roll,oi |
+| 10.00 亿 | central | 0.2217 | 0.3830 | 0.0490 | -0.0314 | 0.0000 | 0.1677 | 0.0000 | participation,cost,roll,oi |
+| 10.00 亿 | pessimistic | 0.3242 | 0.5987 | 0.0979 | -0.0804 | 0.7522 | 0.1677 | 0.0000 | participation,cost,roll,runway,oi |
+| 20.00 亿 | optimistic | 0.3029 | 0.4779 | 0.0409 | -0.0233 | 0.0000 | 0.3354 | 0.0000 | participation,cost,roll,oi |
+| 20.00 亿 | central | 0.4433 | 0.7660 | 0.0629 | -0.0453 | 0.0490 | 0.3354 | 0.0000 | participation,cost,roll,oi |
+| 20.00 亿 | pessimistic | 0.6484 | 1.1975 | 0.1257 | -0.1081 | 0.9366 | 0.3354 | 0.0000 | participation,cost,roll,runway,oi |
+| 50.00 亿 | optimistic | 0.7570 | 1.1947 | 0.0574 | -0.0398 | 0.0000 | 0.8384 | 0.0000 | participation,cost,roll,oi |
+| 50.00 亿 | central | 1.1071 | 1.9150 | 0.0903 | -0.0728 | 0.6052 | 0.8384 | 0.0000 | participation,cost,roll,runway,oi |
+| 50.00 亿 | pessimistic | 1.6207 | 2.9931 | 0.1807 | -0.1631 | 0.9769 | 0.8384 | 0.0000 | participation,cost,roll,runway,oi |
+
+
+## 品种层面：最先失效的约束（中性假设）
+
+| product | first_fail_roll | first_fail_participation | binding | binding_capital |
+|---|---|---|---|---|
+| SA | 2.00 亿 | 10.00 亿 | roll | 2.00 亿 |
+| RB | 5.00 亿 | 20.00 亿 | roll | 5.00 亿 |
+| CU | 5.00 亿 | 10.00 亿 | roll | 5.00 亿 |
+| AL | 5.00 亿 | 5.00 亿 | roll | 5.00 亿 |
+| MA | 5.00 亿 | 10.00 亿 | roll | 5.00 亿 |
+| TA | 5.00 亿 | 10.00 亿 | roll | 5.00 亿 |
+| AP | 5.00 亿 | 10.00 亿 | roll | 5.00 亿 |
+| JD | 5.00 亿 | 5.00 亿 | roll | 5.00 亿 |
+| I | 10.00 亿 | 10.00 亿 | roll | 10.00 亿 |
+| M | 10.00 亿 | 10.00 亿 | roll | 10.00 亿 |
+| P | 20.00 亿 | 20.00 亿 | roll | 20.00 亿 |
+
+
+## 单项假设扰动（规模约束）：结论最怕哪一个假设错
+
+| assumption | central_value | opt_value | pess_value | cap_central | cap_if_opt | cap_if_pess | swing_x |
+|---|---|---|---|---|---|---|---|
+| rho_max | 0.1 | 0.2 | 0.05 | 2.00 亿 | 2.00 亿 | 1.00 亿 | 2 |
+| window_min | 30 | 60 | 15 | 2.00 亿 | 2.00 亿 | 1.00 亿 | 2 |
+| oi_share_max | 0.05 | 0.1 | 0.02 | 2.00 亿 | 2.00 亿 | 1.00 亿 | 2 |
+| adverse_share | 0.75 | 0.5 | 1 | 2.00 亿 | 2.00 亿 | 2.00 亿 | 1 |
+| lock_days | 2 | 1 | 3 | 2.00 亿 | 2.00 亿 | 2.00 亿 | 1 |
+| margin_hike | 0.03 | 0 | 0.05 | 2.00 亿 | 2.00 亿 | 2.00 亿 | 1 |
+| stress_vol_q | 0.05 | 0.1 | 0.02 | 2.00 亿 | 2.00 亿 | 2.00 亿 | 1 |
+
+
+## 换月后旧合约成交量衰减（第 k 个交易日 / 换月当日，中位数）
+
+{&quot;0&quot;: 1.0, &quot;1&quot;: 0.848, &quot;2&quot;: 0.68, &quot;3&quot;: 0.537, &quot;4&quot;: 0.439, &quot;5&quot;: 0.366, &quot;6&quot;: 0.288, &quot;7&quot;: 0.254, &quot;8&quot;: 0.205, &quot;9&quot;: 0.175, &quot;10&quot;: 0.159, &quot;11&quot;: 0.133, &quot;12&quot;: 0.113, &quot;13&quot;: 0.095, &quot;14&quot;: 0.078, &quot;15&quot;: 0.063}
+
+
+## 压力日与平常日的参与率 p95（中性假设窗口）
+
+| capital | False | True |
+|---|---|---|
+| 5000000.0000 | 0.0011 | 0.0020 |
+| 10000000.0000 | 0.0021 | 0.0038 |
+| 20000000.0000 | 0.0041 | 0.0076 |
+| 50000000.0000 | 0.0105 | 0.0197 |
+| 100000000.0000 | 0.0211 | 0.0395 |
+| 200000000.0000 | 0.0423 | 0.0789 |
+| 500000000.0000 | 0.1057 | 0.1972 |
+| 1000000000.0000 | 0.2114 | 0.3945 |
+| 2000000000.0000 | 0.4229 | 0.7891 |
+| 5000000000.0000 | 1.0569 | 1.9677 |
+
+
+压力日按事前规则选：品种日成交量处于样本最低 5%，或日收益绝对值处于最高 5%，或收盘在涨跌停。
+
+## 成交量预测误差（实际 / 前 20 日中位数）
+
+| product | realized_over_forecast_p05 | p50 | p95 |
+|---|---|---|---|
+| RB | 0.648 | 0.986 | 1.616 |
+| I | 0.635 | 0.993 | 1.536 |
+| CU | 0.602 | 0.982 | 1.820 |
+| AL | 0.618 | 1.005 | 1.764 |
+| M | 0.596 | 1.003 | 1.678 |
+| P | 0.624 | 0.993 | 1.496 |
+| MA | 0.581 | 1.000 | 1.745 |
+| TA | 0.616 | 0.993 | 1.786 |
+| SA | 0.530 | 1.012 | 2.006 |
+| AP | 0.565 | 0.985 | 2.026 |
+| JD | 0.533 | 0.994 | 1.950 |
+
+
+参与率是事后口径（用实际成交量）。事前只能用历史中位数预测，p05 列给出预测偏乐观时参与率会被低估多少倍。
+
+## 参与率受限时的拆单延迟代价（真实 5 分钟线，样本）
+
+抽样 77 笔超限单，按上限逐根成交：完成率 100%，相对到达价执行偏差中位数 1.2 bp（正为不利），p90 37.7 bp。这一项是真实数据测得的，不含自身冲击。
+
+## 冻结基线：股票 ADV 框架直接套用
+
+`skill-strategy-capacity-tca`（commit `6ae79f7`，默认参数）用 20 日平均日成交额作 ADV，同一批订单、资金 1 亿：盈亏平衡容量读数 = 105778754.54760404。返回码 0。
+
+基线只看日均量，看不到日内窗口、旧合约悬崖、锁板和保证金跑道。两者的差异就是本报告要说明的决策变化。
+
+## 适用边界
+
+- 冲击系数无法用公开数据校准，只给网格；结论是假设下的容量区间，不是资金上限承诺。
+- 限仓用持仓占比代理，交易所限仓细则未逐品种核对。
+- 费用按名义 bp 统一假设，不是逐品种费率表（费用校准属于 Q1 的范围）。
+- 执行方式固定为日盘开盘后 W 分钟窗口，不比较执行算法（属于 Q16 的范围）；换月规则固定为主力标签切换日开盘换月，不比较换月规则（属于 Q2 的范围）。
+- 2020 年前成交量与持仓量为双边口径，主样本从 2020-01-02 开始。
+- 只测了一个公开策略；换成换手更高或品种更冷门的策略，容量会显著不同。
+
+## 术语
+
+- **参与率 participation**：你的单子占同一时间段市场成交量的比例。超过 10% 左右，冲击成本模型就不太可信，单子也可能做不完。
+- **平方根冲击 square-root impact**：冲击成本大致随交易量占比的平方根增长：量翻 4 倍，冲击约翻 2 倍。系数无法用公开数据校准，这里只给网格。
+- **保证金跑道 margin runway**：极端行情里，账户权益还能撑几天不被追保（T_run）。
+- **平仓时间 time to liquidate**：按参与率上限和锁板天数，把仓位平完要几天（T_liq）。T_liq 大于 T_run 就是资金放大后的失效。
+- **移仓压力 roll pressure**：换月时旧合约的成交量会断崖下降，越晚移仓旧腿越难平。
+- **限仓代理 OI share**：单合约持仓占全市场持仓量的比例；交易所限仓细则未逐品种核对，用比例上限代替。
+- **资金下限 capital floor**：期货一手就是一大块，资金太小时按整手取整，实际风险会偏离目标。
+- **保留集 holdout**：2024 年以后的数据在定好假设之前不看，用来检验结论稳不稳。
+
+</pre></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>const D={"caps": ["500 万", "1000 万", "2000 万", "5000 万", "1.00 亿", "2.00 亿", "5.00 亿", "10.00 亿", "20.00 亿", "50.00 亿"], "series": {"optimistic": [0.0008, 0.0015, 0.003, 0.0076, 0.0152, 0.0303, 0.0757, 0.1515, 0.3029, 0.757], "central": [0.0011, 0.0021, 0.0043, 0.011, 0.0222, 0.0443, 0.1108, 0.2217, 0.4433, 1.1071], "pessimistic": [0.0017, 0.0031, 0.0064, 0.0161, 0.0324, 0.0648, 0.1621, 0.3242, 0.6484, 1.6207]}, "roll": {"central": [0.0019, 0.0037, 0.0076, 0.0192, 0.0383, 0.0766, 0.1915, 0.383, 0.766, 1.915]}, "net": [-0.0003, -0.0045, -0.0088, -0.0057, -0.0085, -0.0129, -0.0216, -0.0314, -0.0453, -0.0728], "rd_k": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "rd_v": [1.0, 0.848, 0.68, 0.537, 0.439, 0.366, 0.288, 0.254, 0.205, 0.175, 0.159, 0.133, 0.113, 0.095, 0.078, 0.063], "tor_l": ["rho_max", "window_min", "oi_share_max", "adverse_share", "lock_days", "margin_hike", "stress_vol_q"], "tor_v": [2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 1.0]};
+if(window.Chart){Chart.defaults.color='#c9ccd1';Chart.defaults.borderColor='#2a2f3a';
+new Chart(c1,{type:'line',data:{labels:D.caps,datasets:[{label:'参与率 p95 乐观',data:D.series.optimistic},{label:'中性',data:D.series.central},{label:'悲观',data:D.series.pessimistic},{label:'移仓旧腿 p95 中性',data:D.roll.central,borderDash:[5,4]}]},options:{plugins:{title:{display:true,text:'窗口参与率 vs 资金'}},scales:{y:{type:'logarithmic'}}}});
+new Chart(c2,{type:'bar',data:{labels:D.caps,datasets:[{label:'中性假设扣成本后年化收益',data:D.net}]},options:{plugins:{title:{display:true,text:'净收益 vs 资金'}}}});
+new Chart(c3,{type:'line',data:{labels:D.rd_k,datasets:[{label:'旧合约成交量 / 换月当日（中位数）',data:D.rd_v}]},options:{plugins:{title:{display:true,text:'换月后旧合约流动性悬崖'}}}});
+new Chart(c4,{type:'bar',data:{labels:D.tor_l,datasets:[{label:'乐观/悲观 规模容量之比',data:D.tor_v}]},options:{indexAxis:'y',plugins:{title:{display:true,text:'单项假设扰动'}}}});}
+</script></body></html>

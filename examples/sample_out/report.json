@@ -1,0 +1,42 @@
+{
+ "plain_text": "被测策略 S0（公开信号：商品期货 63 日截面动量 + 25% 不交易带）在真实合约账本上不扣成本年化 +1.7%（夏普 0.20）。\n规模上（只看参与率、换月旧腿、保证金跑道、持仓占比）：中性假设最大可行资金档 2.00 亿，乐观 5.00 亿，悲观 5000 万；开发期与保留期结论一致。\n最先坏的是换月旧腿：11 个品种里有 11 个是移仓先于日常调仓超限，最弱的 SA 在 2.00 亿 时旧腿窗口参与率就超过上限。\n中性假设下从 5.00 亿 开始，超限的约束是：日内窗口参与率、换月旧腿参与率、持仓占比（限仓代理）。\n经济上：即使在最小资金档，费用加半价差也吃掉毛收益的 88%（中性），任何规模都超过 50% 的阈值。成本里最大的一块是半价差；只要半价差不为零，费用再低也只能降到约 71%。\n对照：股票 ADV 框架（skill-strategy-capacity-tca 默认参数）只算平方根冲击，给出盈亏平衡资金约 1.06 亿，看不到固定成本和换月旧腿。\n真实冲击无法用公开数据校准，以上是假设下的容量区间，不是资金上限承诺。",
+ "caps": {
+  "full": {
+   "optimistic": 0.0,
+   "central": 0.0,
+   "pessimistic": 0.0
+  },
+  "dev": {
+   "optimistic": 0.0,
+   "central": 0.0,
+   "pessimistic": 0.0
+  },
+  "holdout": {
+   "optimistic": 0.0,
+   "central": 0.0,
+   "pessimistic": 0.0
+  }
+ },
+ "caps_size_only": {
+  "full": {
+   "optimistic": 500000000.0,
+   "central": 200000000.0,
+   "pessimistic": 50000000.0
+  },
+  "dev": {
+   "optimistic": 500000000.0,
+   "central": 200000000.0,
+   "pessimistic": 50000000.0
+  },
+  "holdout": {
+   "optimistic": 500000000.0,
+   "central": 200000000.0,
+   "pessimistic": 50000000.0
+  }
+ },
+ "fixed_cost_share_central": 0.8798669360903881,
+ "baseline_breakeven_aum": 105778754.54760404,
+ "first_fail_capital": 5000000.0,
+ "first_fail": "cost",
+ "gross_edge": true
+}

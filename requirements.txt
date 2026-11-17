@@ -1,0 +1,4 @@
+numpy>=1.24
+pandas>=2.0
+pyarrow>=12
+# panda_data：PandaData 官方 Python SDK，仅在线拉取数据时需要（离线自测与已缓存数据不需要）
