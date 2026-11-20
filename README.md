@@ -47,17 +47,10 @@ python scripts/test.py                       # 离线自测（不需要 PandaDat
 
 ## 评审数据快照（不用 PandaData 账号也能复跑）
 
-行情数据不随公开仓库分发。原冻结的 11 个品种（RB、I、CU、AL、M、P、MA、TA、SA、AP、JD）行情快照作为量枢院成果附件提供，共 4 个 zip（1209 个文件：主力序列 11、日线 399、合约信息 399、5 分钟线 399、拉取日志 1）：
-
-| 文件 | sha256 |
-|---|---|
-| `LSY04-Q7_frozen_data_snapshot_part1of4.zip` | `9196596c37098705ae2dbf975a4745011bd674259b83e1ea6a40ad3f0fe05198` |
-| `LSY04-Q7_frozen_data_snapshot_part2of4.zip` | `988fe9949247be3a0099476abc545eb941407ba8b08cc6ec6693ac156f85da35` |
-| `LSY04-Q7_frozen_data_snapshot_part3of4.zip` | `c88166523052bcc22efea98b39dbc7e4a67cade8e5ac4851a2a3ec84c3419741` |
-| `LSY04-Q7_frozen_data_snapshot_part4of4.zip` | `02462d3720993ffe2ed79e1b921ce41c0b30c73f740521d0f2d9fcdb810fd002` |
+行情数据不随公开仓库分发。原冻结的 11 个品种（RB、I、CU、AL、M、P、MA、TA、SA、AP、JD）行情快照作为量枢院成果附件提供：`LSY04-Q7_frozen_data_snapshot_part1of16.zip` … `part16of16.zip`，共 16 个 zip、1209 个文件（主力序列 11、日线 399、合约信息 399、5 分钟线 399、拉取日志 1）；每个 zip 都小于 10 MB，第 1 包是主力序列、日线、合约信息和拉取日志，其余 15 包是 5 分钟线。每个 zip 的 sha256 和逐文件 sha256 都在 [references/data_snapshot_manifest.json](references/data_snapshot_manifest.json) 的 `zips` 和 `files` 字段里。
 
 ```bash
-python scripts/verify_snapshot.py <放 4 个 zip 的目录>   # 解压到仓库根目录 data/ 并核对
+python scripts/verify_snapshot.py <放 16 个 zip 的目录>   # 解压到仓库根目录 data/ 并核对
 python scripts/build.py --out q7_out                     # 约 1 分钟，生成容量表与换月曲线
 ```
 

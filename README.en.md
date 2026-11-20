@@ -38,7 +38,7 @@ In QuantStudio: place the repository under `quantskills-drafts/` in the workspac
 
 ## Reviewer data snapshot
 
-Market data is not redistributed in this public repository. The frozen data for the 11 products is provided as four zip attachments to the 量枢院 submission (`LSY04-Q7_frozen_data_snapshot_part{1..4}of4.zip`, sha256 listed in [README.md](README.md)). `python scripts/verify_snapshot.py <dir>` extracts them into `data/`, checks every file against [references/data_snapshot_manifest.json](references/data_snapshot_manifest.json) and the frozen `input_digest`, then `python scripts/build.py --out q7_out` reproduces `examples/sample_out/` byte for byte (verified in a clean copy).
+Market data is not redistributed in this public repository. The frozen data for the 11 products is provided as 16 zip attachments to the 量枢院 submission (`LSY04-Q7_frozen_data_snapshot_part{1..16}of16.zip`, each under 10 MB; zip and per-file sha256 in the manifest below). `python scripts/verify_snapshot.py <dir>` extracts them into `data/`, checks every file against [references/data_snapshot_manifest.json](references/data_snapshot_manifest.json) and the frozen `input_digest`, then `python scripts/build.py --out q7_out` reproduces `examples/sample_out/` byte for byte (verified in a clean copy).
 
 ## Data source, assumptions, parameters, limitations and risk
 
