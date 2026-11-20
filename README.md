@@ -47,10 +47,10 @@ python scripts/test.py                       # 离线自测（不需要 PandaDat
 
 ## 评审数据快照（不用 PandaData 账号也能复跑）
 
-行情数据不随公开仓库分发。原冻结的 11 个品种（RB、I、CU、AL、M、P、MA、TA、SA、AP、JD）行情快照作为量枢院成果附件提供：`LSY04-Q7_期货策略放大资金后在哪里失效_冻结行情快照_part1of16.zip` … `part16of16.zip`，共 16 个 zip、1209 个文件（主力序列 11、日线 399、合约信息 399、5 分钟线 399、拉取日志 1）；每个 zip 都小于 10 MB，第 1 包是主力序列、日线、合约信息和拉取日志，其余 15 包是 5 分钟线。每个 zip 的 sha256 和逐文件 sha256 都在 [references/data_snapshot_manifest.json](references/data_snapshot_manifest.json) 的 `zips` 和 `files` 字段里。
+行情数据不随公开仓库分发。原冻结的 11 个品种（RB、I、CU、AL、M、P、MA、TA、SA、AP、JD）行情快照作为量枢院成果附件提供：`LSY04-Q7_期货策略放大资金后在哪里失效_冻结行情快照_单包.zip`（104.7 MB，sha256 `6e0eb249e08add328092cf39595918f36be817e87d9d5ae2718ff71e300fc021`），共 1209 个数据文件：主力序列 11、日线 399、合约信息 399、5 分钟线 399、拉取日志 1。逐文件 sha256 在 [references/data_snapshot_manifest.json](references/data_snapshot_manifest.json)。
 
 ```bash
-python scripts/verify_snapshot.py <放 16 个 zip 的目录>   # 解压到仓库根目录 data/ 并核对
+python scripts/verify_snapshot.py LSY04-Q7_期货策略放大资金后在哪里失效_冻结行情快照_单包.zip   # 解压到仓库根目录 data/ 并核对
 python scripts/build.py --out q7_out                     # 约 1 分钟，生成容量表与换月曲线
 ```
 
