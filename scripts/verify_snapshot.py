@@ -1,6 +1,6 @@
 """安装并核对评审用的冻结行情快照：python scripts/verify_snapshot.py <快照 zip 或所在目录>...
 
-快照（LSY04-Q7_frozen_data_snapshot_part1of4.zip … part4of4.zip）随量枢院成果附件提供（行情数据不随公开仓库分发）。本脚本：
+快照（LSY04-Q7_期货策略放大资金后在哪里失效_冻结行情快照_part1of16.zip … part16of16.zip）随量枢院成果附件提供（行情数据不随公开仓库分发）。本脚本：
 1. 把各 zip 里 data/ 下的文件解压到仓库根目录 data/（scripts/futures_replay/data.py 默认先找这里；拒绝越界路径）；
 2. 逐文件核对 sha256 与仓库里提交的清单 references/data_snapshot_manifest.json，确认没有缺文件；
 3. 核对 dominant 与 daily 的指纹和冻结运行 examples/sample_out/meta.json 的 input_sha256_16 / input_digest 一致，
@@ -49,7 +49,7 @@ def main(args: list[str]) -> int:
     zips = []
     for a in args:
         p = Path(a).expanduser()
-        zips += sorted(p.glob("LSY04-Q7_frozen_data_snapshot_part*.zip")) if p.is_dir() else [p]
+        zips += sorted(p.glob("LSY04-Q7_*part*of*.zip")) if p.is_dir() else [p]
     if not zips:
         raise SystemExit("没有找到快照 zip")
     for z in zips:
