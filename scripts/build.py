@@ -55,6 +55,11 @@ def validate_input(input_data: dict | None) -> dict:
     missing = [p for p in d["products"] if not (DATA_ROOT / "dominant" / f"{p}.parquet").exists()]
     if missing:
         raise InputError(f"缺少数据：{missing}。先运行 python scripts/fetch_data.py --products {','.join(missing)}（数据目录 {DATA_ROOT}）")
+    # 5 分钟线缺失时日内参与率会被静默算空，这里提前拦下
+    no_min = [p for p in d["products"]
+              if not any(len(f.stem) > len(p) and f.stem[len(p)].isdigit() for f in (DATA_ROOT / "min5").glob(f"{p}*.parquet"))]
+    if no_min:
+        raise InputError(f"缺少 5 分钟线：{no_min}（数据目录 {DATA_ROOT}/min5）。用评审快照时先运行 python scripts/verify_snapshot.py <快照目录>")
     return d
 
 

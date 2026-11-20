@@ -36,6 +36,10 @@ python scripts/test.py                       # offline self-tests
 
 In QuantStudio: place the repository under `quantskills-drafts/` in the workspace, publish it as a local skill via "AI create skill", then fill the session form and click "apply and run". The recorded QuantStudio v0.1.36 run is in [platform_evidence/quantstudio/](platform_evidence/quantstudio/); its results match the local run.
 
+## Reviewer data snapshot
+
+Market data is not redistributed in this public repository. The frozen data for the 11 products is provided as four zip attachments to the 量枢院 submission (`LSY04-Q7_frozen_data_snapshot_part{1..4}of4.zip`, sha256 listed in [README.md](README.md)). `python scripts/verify_snapshot.py <dir>` extracts them into `data/`, checks every file against [references/data_snapshot_manifest.json](references/data_snapshot_manifest.json) and the frozen `input_digest`, then `python scripts/build.py --out q7_out` reproduces `examples/sample_out/` byte for byte (verified in a clean copy).
+
 ## Data source, assumptions, parameters, limitations and risk
 
 Data source: PandaData futures interfaces (dominant contracts, contract details, daily and 5-minute bars); measured data conventions are in [references/api_guide.md](references/api_guide.md) (e.g. volume and open interest on SHF/DCE/CZC were double-sided before 2020). Assumptions, parameters and known limitations are listed in [references/source_boundary.md](references/source_boundary.md). Main limitations: the impact coefficient is assumed, so results are capacity ranges under assumptions; position limits are proxied by open-interest share; fees use a uniform bp assumption; one public strategy only.
